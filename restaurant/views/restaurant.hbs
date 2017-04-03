@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{{title}}</title>
+    <link href="/style.css">
+  </head>
+
+<h1>Restaurant</h1>
+<ul>
+  {{#each restaurants}}
+    <li>{{name}}</li>
+    <li>{{address}}</li>
+    <li>{{category}}</li>
+  {{/each}}
+</ul>
+<h1>Reviews</h1>
+<ul>
+  {{#each reviews}}
+    <li>{{stars}}</li>
+    <li>{{title}}</li>
+    <li>{{review}}</li>
+  </br>
+  {{/each}}
+</ul>
+
+<a href="/submitReview"><h1>Submit a review!</h1></a>
