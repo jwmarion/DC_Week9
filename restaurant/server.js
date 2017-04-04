@@ -20,9 +20,10 @@ app.get('/', function(request, response, next) {
         title: "Restaurant Search"
     })
 });
+
 app.get('/search', function(request, response, next) {
     var search = request.query.search;
-    db.any("select name, id from restaurant where name ilike '%" + search + "%';")
+    db.any("select name, id from restaurant where name ilike '%$1%'" ,search)
         .then(function(results) {
             response.render('search_results.hbs', {
                 results: results
@@ -33,9 +34,9 @@ app.get('/search', function(request, response, next) {
 
 app.get('/restaurant/:id', function(request, response, next) {
     var id = request.params.id;
-    db.any("select name,address,category from restaurant where id = " + id + ";")
+    db.any(`select name,address,category from restaurant where id = $1;`,id)
       .then(function(result1){
-        return[result1, db.any("select distinct(review.id) stars, title, review from review, restaurant where review.restaurant_id = "+ id +";")]
+        return[result1, db.any("select distinct(review.id) stars, title, review from review, restaurant where review.restaurant_id = $1;",id)]
       })
       .spread(function(restaurantData, reviewData){
         response.render('restaurant.hbs', {
@@ -45,11 +46,27 @@ app.get('/restaurant/:id', function(request, response, next) {
       })
       .catch(next);
 });
+// response.render('submitReview.hbs', {
+//        title: "Review Submission"
+//    })
 
-app.get('/submitReview', function(request, response, next) {
-    response.render('home.hbs', {
-        title: "Review Submission"
-    })
+
+app.get('/submitReview', function(request, response, next){
+  // response.render('submitReview.hbs', {
+  //        title: "Review Submission"
+  //    })
+})
+app.post('/submit_review/:id', function(req, res, next) {
+  var restaurantId = req.params.id;
+  console.log('restaurant ID',restaurantId);
+  console.log('from the form', req.body);
+  db.none('insert into review values(default, NULL, $1, $2, $3, $4)',req.body.stars, req.body.title, req.body.review, restaurantId)
+  .then(function() {
+    resp.redirect('/restaurant/$1', restaurant_id);
+  })
+  .catch(next);
+
+
 });
 
 app.listen(3000, function() {

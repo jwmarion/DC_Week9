@@ -25,12 +25,13 @@ app.get('/todos', function(request, response) {
 });
 
 app.post('/add_todo', function(request, response, next) {
-  var desc = request.body.description;
-  db.none(`insert into task values (default, '${desc}', FALSE)`)
-    .then(function() {
-      response.redirect('/todos');
-    })
-    .catch(next);
+  console.log()
+  // var desc = request.body.form1;
+  // db.none(`insert into review values (default, '${d}', FALSE)`)
+  //   .then(function() {
+  //     response.redirect('/todos');
+  //   })
+  //   .catch(next);
 });
 
 app.listen(3000, function() {
