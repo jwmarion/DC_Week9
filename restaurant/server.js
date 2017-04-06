@@ -1,20 +1,21 @@
-let Promise = require('bluebird');
-let express = require('express');
-let hbs = require('hbs');
-var fs = require('fs-promise');
-
-const app = express();
-const bodyParser = require('body-parser');
-const pgp = require('pg-promise')({ promiseLib: Promise });
-
-app.set('view engine', 'hbs');
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static('public'));
+const express = require('express');
+const Promise = require('bluebird');
 const session = require('express-session');
+const pgp = require('pg-promise')({
+  promiseLib: Promise
+});
+const bodyParser = require('body-parser');
+const app = express();
+const fs = require('fs');
+app.use(express.static('public'));
+
 app.use(session({
-  secret: 'testtesttestt',
-  cookie:{maxAge: 6000000}
+  secret: 'topsecret',
+  cookie: {
+    maxAge: 600000000
+  }
 }));
+
 
 var db = pgp({
     host: "127.0.0.1",
@@ -23,19 +24,20 @@ var db = pgp({
 
 
 app.use(function printIt(req, res, next){
-  fs.appendFile('./test.txt',(`Method: $1 \n path: $2 \n`, req.method, req.path));
-  // console.log(`Method: $1 \n path: $2`, req.method, req.path);
+  fs.appendFile('./test.txt',(`Method: $1 \n path: $2 \n`, req.method, req.path), function(err){
+    next();
+  });
+});
+
+app.use(function(req, resp, next) {
+  resp.locals.session = req.session;
   next();
 });
 
-app.get('/', function(request, res, next) {
+app.get('/login', function(request, res, next) {
   res.render('login.hbs',{
     title: "Login"
-  })
-  //
-  // res.render('home.hbs', {
-  //       title: "Restaurant Search"
-  //   })
+  });
 });
 
 app.post('/submit_login',function(req, res, next){
@@ -54,6 +56,10 @@ app.post('/submit_login',function(req, res, next){
     .catch(next);
 
 });
+app.get('/', function(req, resp) {
+  resp.render('search.hbs');
+});
+
 
 app.get('/search', function(request, res, next) {
   res.render('home.hbs')
